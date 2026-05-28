@@ -1,34 +1,35 @@
 # 🚀 RESTful API — Laravel + Sanctum
 
-API autentikasi berbasis token menggunakan **Laravel 13** dan **Laravel Sanctum**.  
-Dibangun dengan PHP 8.4 dan siap digunakan untuk aplikasi mobile, SPA, atau integrasi pihak ketiga.
+A token-based authentication API built with **Laravel 13** and **Laravel Sanctum**.  
+Designed for mobile apps, single-page applications (SPA), or any third-party integration.
 
 ---
 
-## 📋 Daftar Isi
+## 📋 Table of Contents
 
-- [Teknologi](#-teknologi)
-- [Instalasi](#-instalasi)
-- [Konfigurasi](#-konfigurasi)
-- [Menjalankan Server](#-menjalankan-server)
-- [Autentikasi](#-autentikasi)
-- [Endpoint API](#-endpoint-api)
+- [Tech Stack](#-tech-stack)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Running the Server](#-running-the-server)
+- [How Authentication Works](#-how-authentication-works)
+- [API Endpoints](#-api-endpoints)
   - [Register](#1-register)
   - [Login](#2-login)
-  - [Get Profile (Me)](#3-get-profile-me)
+  - [Get Profile](#3-get-profile-me)
   - [Logout](#4-logout)
-  - [Logout Semua Device](#5-logout-semua-device)
-- [Response Error](#-response-error)
-- [Penggunaan dengan Postman](#-penggunaan-dengan-postman)
-- [Penggunaan dengan cURL](#-penggunaan-dengan-curl)
-- [Konfigurasi Token Expiration](#-konfigurasi-token-expiration)
+  - [Logout All Devices](#5-logout-all-devices)
+- [Error Responses](#-error-responses)
+- [Using with Postman](#-using-with-postman)
+- [Using with cURL](#-using-with-curl)
+- [Token Expiration](#-token-expiration)
+- [Project Structure](#-project-structure)
 
 ---
 
-## 🛠 Teknologi
+## 🛠 Tech Stack
 
-| Teknologi | Versi |
-|-----------|-------|
+| Technology | Version |
+|------------|---------|
 | PHP | ^8.3 |
 | Laravel | ^13.x |
 | Laravel Sanctum | ^4.x |
@@ -36,103 +37,107 @@ Dibangun dengan PHP 8.4 dan siap digunakan untuk aplikasi mobile, SPA, atau inte
 
 ---
 
-## 📦 Instalasi
+## 📦 Installation
 
-### 1. Clone atau download project
+### Step 1 — Clone the repository
 
 ```bash
-git clone <url-repository> restfull-api-laravel
+git clone <repository-url> restfull-api-laravel
 cd restfull-api-laravel
 ```
 
-### 2. Install dependency
+### Step 2 — Install dependencies
 
 ```bash
 composer install
 ```
 
-### 3. Salin file environment
+### Step 3 — Copy the environment file
 
 ```bash
 cp .env.example .env
 ```
 
-### 4. Generate application key
+### Step 4 — Generate the application key
 
 ```bash
 php artisan key:generate
 ```
 
-### 5. Jalankan migrasi database
+### Step 5 — Run database migrations
 
 ```bash
 php artisan migrate
 ```
 
+That's it! Your API is ready to use.
+
 ---
 
-## ⚙️ Konfigurasi
+## ⚙️ Configuration
 
-Edit file `.env` sesuai kebutuhan:
+Open the `.env` file and update the settings as needed:
 
 ```env
 APP_NAME=Laravel
 APP_ENV=local
 APP_URL=http://localhost:8000
 
-# Database (default: SQLite)
+# Database — SQLite is used by default (no setup needed)
 DB_CONNECTION=sqlite
 
-# Atau gunakan MySQL:
+# To use MySQL instead, uncomment and fill in these lines:
 # DB_CONNECTION=mysql
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
-# DB_DATABASE=nama_database
+# DB_DATABASE=your_database_name
 # DB_USERNAME=root
-# DB_PASSWORD=
+# DB_PASSWORD=your_password
 
-# Durasi token (dalam menit)
-# null atau kosong = token tidak pernah expired
-SANCTUM_TOKEN_EXPIRATION=1440   # 24 jam
+# Token lifetime in minutes (1440 = 24 hours)
+SANCTUM_TOKEN_EXPIRATION=1440
 ```
 
 ---
 
-## ▶️ Menjalankan Server
+## ▶️ Running the Server
 
 ```bash
 php artisan serve
 ```
 
-Server akan berjalan di: **`http://localhost:8000`**
+The server will start at: **`http://localhost:8000`**
 
-Semua endpoint API dapat diakses dengan prefix `/api`:  
+All API endpoints are accessible under the `/api` prefix:  
 **Base URL:** `http://localhost:8000/api`
 
 ---
 
-## 🔐 Autentikasi
+## 🔐 How Authentication Works
 
-API ini menggunakan **Bearer Token** dari Laravel Sanctum.
+This API uses **Bearer Token** authentication provided by Laravel Sanctum.
 
-**Alur penggunaan:**
-1. Daftar akun baru → `POST /api/auth/register`
-2. Login → `POST /api/auth/login` → dapatkan `access_token`
-3. Gunakan token di header setiap request yang membutuhkan autentikasi:
+**Simple flow:**
 
 ```
-Authorization: Bearer {access_token}
+1. Register or Login  →  You receive an access_token
+2. Include the token in every protected request header:
+
+   Authorization: Bearer {your_access_token}
+
+3. To end the session, call Logout to invalidate the token
 ```
 
-> ⚠️ Endpoint yang membutuhkan autentikasi akan mengembalikan `401 Unauthorized` jika token tidak disertakan atau tidak valid.
+> ⚠️ Endpoints marked with 🔒 require a valid token in the `Authorization` header.  
+> Without it, the API returns `401 Unauthorized`.
 
 ---
 
-## 📡 Endpoint API
+## 📡 API Endpoints
 
 ### 1. Register
 
-Mendaftarkan pengguna baru dan langsung mengembalikan token akses.
+Create a new user account. Returns an access token immediately after registration.
 
 ```
 POST /api/auth/register
@@ -154,16 +159,16 @@ Accept: application/json
 }
 ```
 
-**Field Validation:**
+**Fields:**
 
-| Field | Tipe | Wajib | Aturan |
-|-------|------|:-----:|--------|
-| `name` | string | ✅ | Maksimal 255 karakter |
-| `email` | string | ✅ | Format email valid, unik |
-| `password` | string | ✅ | Minimal 8 karakter |
-| `password_confirmation` | string | ✅ | Harus sama dengan `password` |
+| Field | Type | Required | Rules |
+|-------|------|:--------:|-------|
+| `name` | string | ✅ | Max 255 characters |
+| `email` | string | ✅ | Valid email format, must be unique |
+| `password` | string | ✅ | Minimum 8 characters |
+| `password_confirmation` | string | ✅ | Must match `password` |
 
-**Response Sukses `201 Created`:**
+**Success Response — `201 Created`:**
 ```json
 {
     "message": "User registered successfully.",
@@ -184,7 +189,7 @@ Accept: application/json
 
 ### 2. Login
 
-Login dengan email dan password untuk mendapatkan token akses.
+Authenticate with your email and password to receive an access token.
 
 ```
 POST /api/auth/login
@@ -204,14 +209,14 @@ Accept: application/json
 }
 ```
 
-**Field Validation:**
+**Fields:**
 
-| Field | Tipe | Wajib | Aturan |
-|-------|------|:-----:|--------|
-| `email` | string | ✅ | Format email valid |
+| Field | Type | Required | Rules |
+|-------|------|:--------:|-------|
+| `email` | string | ✅ | Valid email format |
 | `password` | string | ✅ | - |
 
-**Response Sukses `200 OK`:**
+**Success Response — `200 OK`:**
 ```json
 {
     "message": "Login successful.",
@@ -229,13 +234,13 @@ Accept: application/json
 }
 ```
 
-> 💡 Simpan `access_token` ini untuk digunakan di request selanjutnya.
+> 💡 **Save the `access_token`** — you'll need it to access protected endpoints.
 
 ---
 
 ### 3. Get Profile (Me)
 
-Mengambil data profil pengguna yang sedang login.
+🔒 Returns the profile of the currently authenticated user.
 
 ```
 GET /api/auth/me
@@ -247,7 +252,7 @@ Authorization: Bearer {access_token}
 Accept: application/json
 ```
 
-**Response Sukses `200 OK`:**
+**Success Response — `200 OK`:**
 ```json
 {
     "user": {
@@ -265,7 +270,7 @@ Accept: application/json
 
 ### 4. Logout
 
-Mencabut token saat ini (logout dari device/sesi ini saja).
+🔒 Revoke the current access token. Only affects the current session/device.
 
 ```
 POST /api/auth/logout
@@ -277,9 +282,9 @@ Authorization: Bearer {access_token}
 Accept: application/json
 ```
 
-**Request Body:** *(tidak diperlukan)*
+**Request Body:** *(not required)*
 
-**Response Sukses `200 OK`:**
+**Success Response — `200 OK`:**
 ```json
 {
     "message": "Logged out successfully."
@@ -288,9 +293,9 @@ Accept: application/json
 
 ---
 
-### 5. Logout Semua Device
+### 5. Logout All Devices
 
-Mencabut **semua** token aktif milik pengguna (logout dari semua device sekaligus).
+🔒 Revoke **all** active tokens for the user. This logs out from every device at once.
 
 ```
 POST /api/auth/logout-all
@@ -302,9 +307,9 @@ Authorization: Bearer {access_token}
 Accept: application/json
 ```
 
-**Request Body:** *(tidak diperlukan)*
+**Request Body:** *(not required)*
 
-**Response Sukses `200 OK`:**
+**Success Response — `200 OK`:**
 ```json
 {
     "message": "Logged out from all devices successfully."
@@ -313,11 +318,23 @@ Accept: application/json
 
 ---
 
-## ❌ Response Error
+## 📋 Endpoint Summary
 
-### Validation Error `422 Unprocessable Content`
+| Method | Endpoint | Auth Required | Description |
+|--------|----------|:------------:|-------------|
+| `POST` | `/api/auth/register` | ❌ | Create a new account |
+| `POST` | `/api/auth/login` | ❌ | Login and get a token |
+| `GET` | `/api/auth/me` | 🔒 | Get current user profile |
+| `POST` | `/api/auth/logout` | 🔒 | Logout from this device |
+| `POST` | `/api/auth/logout-all` | 🔒 | Logout from all devices |
 
-Terjadi ketika request body tidak memenuhi validasi.
+---
+
+## ❌ Error Responses
+
+### Validation Error — `422 Unprocessable Content`
+
+Returned when request data fails validation rules.
 
 ```json
 {
@@ -333,7 +350,9 @@ Terjadi ketika request body tidak memenuhi validasi.
 }
 ```
 
-### Credentials Salah `422 Unprocessable Content`
+### Wrong Credentials — `422 Unprocessable Content`
+
+Returned when email or password is incorrect.
 
 ```json
 {
@@ -346,9 +365,9 @@ Terjadi ketika request body tidak memenuhi validasi.
 }
 ```
 
-### Tidak Terautentikasi `401 Unauthorized`
+### Unauthenticated — `401 Unauthorized`
 
-Terjadi ketika token tidak disertakan atau sudah expired/dicabut.
+Returned when the token is missing, expired, or revoked.
 
 ```json
 {
@@ -356,7 +375,9 @@ Terjadi ketika token tidak disertakan atau sudah expired/dicabut.
 }
 ```
 
-### Email Sudah Terdaftar `422 Unprocessable Content`
+### Email Already Taken — `422 Unprocessable Content`
+
+Returned when registering with an email that already exists.
 
 ```json
 {
@@ -371,25 +392,13 @@ Terjadi ketika token tidak disertakan atau sudah expired/dicabut.
 
 ---
 
-## 🗂 Ringkasan Endpoint
+## 📬 Using with Postman
 
-| Method | Endpoint | Auth | Deskripsi |
-|--------|----------|:----:|-----------|
-| `POST` | `/api/auth/register` | ❌ | Daftar akun baru |
-| `POST` | `/api/auth/login` | ❌ | Login & dapatkan token |
-| `GET` | `/api/auth/me` | ✅ | Lihat profil user |
-| `POST` | `/api/auth/logout` | ✅ | Logout device ini |
-| `POST` | `/api/auth/logout-all` | ✅ | Logout semua device |
+### Import the Collection
 
----
-
-## 📬 Penggunaan dengan Postman
-
-### Import Collection
-
-1. Buka **Postman**
-2. Klik **Import** → **Raw text**
-3. Paste JSON berikut:
+1. Open **Postman**
+2. Click **Import** → **Raw text**
+3. Paste the JSON below and click **Import**
 
 ```json
 {
@@ -477,11 +486,13 @@ Terjadi ketika token tidak disertakan atau sudah expired/dicabut.
 }
 ```
 
-> 💡 **Tip Postman:** Setelah Login berhasil, token otomatis tersimpan ke variable `{{token}}` berkat script pada tab **Tests** di request Login.
+> 💡 **Pro Tip:** After a successful Login, the `access_token` is automatically saved to the `{{token}}` variable via the **Tests** script — no manual copy-pasting needed!
 
 ---
 
-## 🖥 Penggunaan dengan cURL
+## 🖥 Using with cURL
+
+Replace `{access_token}` with the token you received from the Login response.
 
 ### Register
 ```bash
@@ -521,62 +532,59 @@ curl -X POST http://localhost:8000/api/auth/logout \
   -H "Accept: application/json"
 ```
 
-### Logout Semua Device
+### Logout All Devices
 ```bash
 curl -X POST http://localhost:8000/api/auth/logout-all \
   -H "Authorization: Bearer {access_token}" \
   -H "Accept: application/json"
 ```
 
-> Ganti `{access_token}` dengan token yang didapat dari response Login.
-
 ---
 
-## ⏱ Konfigurasi Token Expiration
+## ⏱ Token Expiration
 
-Atur masa berlaku token di file `.env`:
+Control how long a token stays valid by editing `.env`:
 
 ```env
-# Contoh pilihan durasi (satuan: menit):
-SANCTUM_TOKEN_EXPIRATION=30      # 30 menit
-SANCTUM_TOKEN_EXPIRATION=60      # 1 jam
-SANCTUM_TOKEN_EXPIRATION=1440    # 24 jam (default)
-SANCTUM_TOKEN_EXPIRATION=10080   # 7 hari
-SANCTUM_TOKEN_EXPIRATION=43200   # 30 hari
-SANCTUM_TOKEN_EXPIRATION=        # Kosong = tidak pernah expired
+SANCTUM_TOKEN_EXPIRATION=30      # 30 minutes
+SANCTUM_TOKEN_EXPIRATION=60      # 1 hour
+SANCTUM_TOKEN_EXPIRATION=1440    # 24 hours (default)
+SANCTUM_TOKEN_EXPIRATION=10080   # 7 days
+SANCTUM_TOKEN_EXPIRATION=43200   # 30 days
+SANCTUM_TOKEN_EXPIRATION=        # Leave empty = tokens never expire
 ```
 
-Setelah mengubah `.env`, jalankan:
+After changing `.env`, clear the config cache:
 ```bash
 php artisan config:clear
 ```
 
-Untuk membersihkan token yang sudah expired dari database:
+To clean up expired tokens from the database:
 ```bash
 php artisan sanctum:prune-expired --hours=24
 ```
 
 ---
 
-## 🏗 Struktur Project
+## 🏗 Project Structure
 
 ```
 app/
 ├── Http/
 │   └── Controllers/
-│       └── AuthController.php   # Logic autentikasi
+│       └── AuthController.php   ← Handles register, login, logout, profile
 ├── Models/
-│   └── User.php                 # Model user dengan HasApiTokens
+│   └── User.php                 ← User model with API token support
 config/
-│   └── sanctum.php              # Konfigurasi Sanctum
+│   └── sanctum.php              ← Sanctum settings (token expiration, etc.)
 routes/
-│   └── api.php                  # Definisi endpoint API
+│   └── api.php                  ← All API endpoint definitions
 database/
-│   └── migrations/              # Skema tabel database
+│   └── migrations/              ← Database table schemas
 ```
 
 ---
 
-## 📝 Lisensi
+## 📝 License
 
-Project ini menggunakan lisensi [MIT](https://opensource.org/licenses/MIT).
+This project is open-sourced under the [MIT License](https://opensource.org/licenses/MIT).
