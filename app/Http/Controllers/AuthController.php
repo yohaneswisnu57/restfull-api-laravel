@@ -57,9 +57,9 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user  = Auth::user();
 
-        // Ambil expiration dari config (menit), konversi ke Carbon atau null
-        $expirationMinutes = config('sanctum.expiration');
-        $expiresAt = $expirationMinutes ? now()->addMinutes($expirationMinutes) : null;
+        // Ambil expiration dari config (menit), cast ke int agar Carbon tidak error
+        $expirationMinutes = (int) config('sanctum.expiration');
+        $expiresAt = $expirationMinutes > 0 ? now()->addMinutes($expirationMinutes) : null;
 
         $token = $user->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
 

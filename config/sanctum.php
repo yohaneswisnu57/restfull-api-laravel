@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 1440), // dalam menit (default: 1440 = 24 jam)
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION') !== null ? (int) env('SANCTUM_TOKEN_EXPIRATION') : null, // dalam menit (default: null = tidak pernah expired)
 
     /*
     |--------------------------------------------------------------------------
