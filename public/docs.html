@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RESTful API Docs — Laravel + Sanctum</title>
+  <meta name="description" content="Interactive API documentation for the Laravel + Sanctum RESTful Authentication API." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --primary-dark: #5a52d5;
+      --accent: #ff6584;
+      --bg: #0f0e17;
+      --surface: #1a1929;
+      --surface2: #242338;
+      --text: #fffffe;
+      --text-muted: #a7a9be;
+      --border: #2e2c45;
+      --success: #4ade80;
+      --warning: #fb923c;
+      --danger: #f87171;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────── */
+    .api-header {
+      background: linear-gradient(135deg, #1a1929 0%, #0f0e17 60%, #1a0a2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .api-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .api-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+    }
+
+    .api-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .api-title span {
+      color: var(--primary);
+    }
+
+    .api-version {
+      font-size: 0.7rem;
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(108, 99, 255, 0.3);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .api-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .badge-laravel {
+      background: rgba(255, 45, 85, 0.1);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 45, 85, 0.2);
+    }
+
+    .badge-sanctum {
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(108, 99, 255, 0.2);
+    }
+
+    /* ─── HERO BANNER ─────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(255, 101, 132, 0.05));
+      border-bottom: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .hero-text h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--text), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-text p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    .hero-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      min-width: 300px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .step strong {
+      color: var(--text);
+    }
+
+    /* ─── SERVER INFO BAR ─────────────────────────────────── */
+    .server-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .server-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .server-url {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(108, 99, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .server-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    /* ─── SWAGGER UI WRAPPER ──────────────────────────────── */
+    #swagger-ui-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ─── SWAGGER UI OVERRIDES ────────────────────────────── */
+    .swagger-ui {
+      font-family: 'Inter', sans-serif !important;
+    }
+
+    .swagger-ui .info { display: none; }
+    .swagger-ui .scheme-container { display: none; }
+
+    .swagger-ui .opblock-tag {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 12px !important;
+      margin: 20px 0 8px !important;
+      padding: 14px 20px !important;
+      color: var(--text) !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+    }
+
+    .swagger-ui .opblock-tag:hover {
+      background: var(--surface2) !important;
+    }
+
+    .swagger-ui .opblock {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 10px !important;
+      margin-bottom: 10px !important;
+      box-shadow: none !important;
+      overflow: hidden;
+    }
+
+    .swagger-ui .opblock.opblock-post .opblock-summary {
+      border-color: rgba(108, 99, 255, 0.4) !important;
+      background: rgba(108, 99, 255, 0.05) !important;
+    }
+
+    .swagger-ui .opblock.opblock-get .opblock-summary {
+      border-color: rgba(74, 222, 128, 0.4) !important;
+      background: rgba(74, 222, 128, 0.05) !important;
+    }
+
+    .swagger-ui .opblock-summary-method {
+      border-radius: 6px !important;
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.7rem !important;
+      min-width: 60px !important;
+      padding: 6px 10px !important;
+    }
+
+    .swagger-ui .opblock.opblock-post .opblock-summary-method {
+      background: var(--primary) !important;
+    }
+
+    .swagger-ui .opblock.opblock-get .opblock-summary-method {
+      background: #16a34a !important;
+    }
+
+    .swagger-ui .opblock-summary-path {
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.88rem !important;
+      color: var(--text) !important;
+    }
+
+    .swagger-ui .opblock-summary-description {
+      color: var(--text-muted) !important;
+      font-size: 0.83rem !important;
+    }
+
+    .swagger-ui .opblock-body {
+      background: var(--bg) !important;
+    }
+
+    .swagger-ui .opblock-section-header {
+      background: var(--surface2) !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+
+    .swagger-ui .opblock-section-header h4 {
+      color: var(--text-muted) !important;
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.07em !important;
+    }
+
+    .swagger-ui label,
+    .swagger-ui .parameter__name,
+    .swagger-ui .parameter__type,
+    .swagger-ui table thead tr th,
+    .swagger-ui .response-col_status,
+    .swagger-ui .col_header {
+      color: var(--text-muted) !important;
+      font-size: 0.82rem !important;
+    }
+
+    .swagger-ui .parameter__name.required::after {
+      color: var(--danger) !important;
+    }
+
+    .swagger-ui textarea,
+    .swagger-ui input[type=text],
+    .swagger-ui input[type=password],
+    .swagger-ui input[type=search],
+    .swagger-ui select {
+      background: var(--surface2) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px !important;
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.82rem !important;
+    }
+
+    .swagger-ui textarea:focus,
+    .swagger-ui input:focus {
+      outline: none !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15) !important;
+    }
+
+    .swagger-ui .btn {
+      border-radius: 8px !important;
+      font-weight: 600 !important;
+      font-size: 0.8rem !important;
+      font-family: 'Inter', sans-serif !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .swagger-ui .btn.execute {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: #fff !important;
+      padding: 8px 20px !important;
+    }
+
+    .swagger-ui .btn.execute:hover {
+      background: var(--primary-dark) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4) !important;
+    }
+
+    .swagger-ui .btn.cancel {
+      border-color: var(--border) !important;
+      color: var(--text-muted) !important;
+    }
+
+    .swagger-ui .btn.authorize {
+      background: rgba(74, 222, 128, 0.1) !important;
+      border-color: var(--success) !important;
+      color: var(--success) !important;
+    }
+
+    .swagger-ui .btn.authorize:hover {
+      background: rgba(74, 222, 128, 0.2) !important;
+    }
+
+    .swagger-ui .btn.authorize svg {
+      fill: var(--success) !important;
+    }
+
+    .swagger-ui .model-box,
+    .swagger-ui .model {
+      background: var(--surface2) !important;
+      color: var(--text) !important;
+    }
+
+    .swagger-ui section.models {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 10px !important;
+    }
+
+    .swagger-ui section.models h4 {
+      color: var(--text) !important;
+    }
+
+    .swagger-ui .response-col_description .markdown p,
+    .swagger-ui .renderedMarkdown p,
+    .swagger-ui p {
+      color: var(--text-muted) !important;
+    }
+
+    .swagger-ui .response-col_status {
+      font-family: 'Fira Code', monospace !important;
+    }
+
+    .swagger-ui .responses-inner h4,
+    .swagger-ui .responses-inner h5 {
+      color: var(--text-muted) !important;
+    }
+
+    .swagger-ui .microlight {
+      background: var(--bg) !important;
+      color: #a8ff78 !important;
+      font-family: 'Fira Code', monospace !important;
+      font-size: 0.8rem !important;
+      border-radius: 6px !important;
+      padding: 12px !important;
+    }
+
+    .swagger-ui .highlight-code > .microlight {
+      padding: 16px !important;
+    }
+
+    .swagger-ui table tbody tr td {
+      border-color: var(--border) !important;
+      color: var(--text-muted) !important;
+    }
+
+    .swagger-ui table tbody tr:hover td {
+      background: var(--surface2) !important;
+    }
+
+    .swagger-ui .dialog-ux .modal-ux {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 12px !important;
+    }
+
+    .swagger-ui .dialog-ux .modal-ux-header {
+      background: var(--surface2) !important;
+      border-bottom: 1px solid var(--border) !important;
+      border-radius: 12px 12px 0 0 !important;
+    }
+
+    .swagger-ui .dialog-ux .modal-ux-header h3 {
+      color: var(--text) !important;
+    }
+
+    .swagger-ui .dialog-ux .modal-ux-content h4,
+    .swagger-ui .dialog-ux .modal-ux-content p {
+      color: var(--text-muted) !important;
+    }
+
+    .swagger-ui .auth-container {
+      border-color: var(--border) !important;
+    }
+
+    .swagger-ui .auth-container input {
+      background: var(--bg) !important;
+    }
+
+    .swagger-ui .lock-icon,
+    .swagger-ui .unlocked {
+      fill: var(--text-muted) !important;
+    }
+
+    .swagger-ui .copy-to-clipboard {
+      background: var(--surface2) !important;
+    }
+
+    /* ─── AUTHORIZE BAR ───────────────────────────────────── */
+    .authorize-hint {
+      max-width: 1200px;
+      margin: 24px auto 0;
+      padding: 0 20px;
+    }
+
+    .authorize-hint-inner {
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.06), rgba(108, 99, 255, 0.06));
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .authorize-hint-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .authorize-hint-text {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .authorize-hint-text strong {
+      color: var(--success);
+    }
+
+    .authorize-hint-text code {
+      font-family: 'Fira Code', monospace;
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--primary);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────────── */
+    .api-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .api-footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .api-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="api-header">
+    <div class="api-header-left">
+      <div class="api-logo">🚀</div>
+      <div>
+        <div class="api-title">RESTful <span>API</span> Docs</div>
+      </div>
+      <span class="api-version">v1.0.0</span>
+    </div>
+    <div class="api-header-right">
+      <span class="badge badge-laravel">⚡ Laravel 13</span>
+      <span class="badge badge-sanctum">🔑 Sanctum</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Interactive API Reference</h1>
+      <p>
+        Explore and test all authentication endpoints directly from this page.
+        No external tools needed — just register or login, grab your token, and start making requests.
+      </p>
+    </div>
+    <div class="hero-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <span>Call <strong>Register</strong> or <strong>Login</strong> to get an <code style="font-family:monospace;font-size:0.8em;background:rgba(108,99,255,0.15);color:#6c63ff;padding:1px 5px;border-radius:3px;">access_token</code></span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <span>Click <strong>Authorize 🔓</strong> below and enter: <code style="font-family:monospace;font-size:0.8em;background:rgba(108,99,255,0.15);color:#6c63ff;padding:1px 5px;border-radius:3px;">Bearer your_token</code></span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <span>Try any <strong>🔒 protected endpoint</strong> — it will use your token automatically</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVER BAR -->
+  <div class="server-bar">
+    <span class="server-label">Base URL</span>
+    <div class="server-dot"></div>
+    <span class="server-url" id="server-display">http://localhost:8000/api</span>
+  </div>
+
+  <!-- AUTHORIZE HINT -->
+  <div class="authorize-hint">
+    <div class="authorize-hint-inner">
+      <span class="authorize-hint-icon">💡</span>
+      <div class="authorize-hint-text">
+        <strong>How to authenticate:</strong> After a successful Login or Register, copy the <code>access_token</code> from the response.
+        Then click the <strong>Authorize</strong> button in the Swagger UI below, and enter your token as <code>Bearer &lt;your_token&gt;</code>.
+        All protected endpoints (marked with 🔒) will automatically include your token.
+      </div>
+    </div>
+  </div>
+
+  <!-- SWAGGER UI -->
+  <div id="swagger-ui-container">
+    <div id="swagger-ui"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="api-footer">
+    Built with ❤️ using <a href="https://laravel.com" target="_blank">Laravel 13</a> +
+    <a href="https://laravel.com/docs/sanctum" target="_blank">Sanctum</a> ·
+    Docs powered by <a href="https://swagger.io/tools/swagger-ui/" target="_blank">Swagger UI</a>
+  </footer>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = () => {
+      // Detect base URL dynamically
+      const base = window.location.origin;
+      document.getElementById('server-display').textContent = base + '/api';
+
+      SwaggerUIBundle({
+        url: window.location.origin + '/openapi.yaml',
+        dom_id: '#swagger-ui',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset,
+        ],
+        layout: 'StandaloneLayout',
+        deepLinking: true,
+        displayRequestDuration: true,
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 2,
+        docExpansion: 'list',
+        filter: false,
+        showExtensions: false,
+        showCommonExtensions: false,
+        tryItOutEnabled: true,
+        requestSnippetsEnabled: true,
+        persistAuthorization: true,
+        // Override server URL to current host
+        requestInterceptor: (req) => {
+          return req;
+        },
+      });
+    };
+  </script>
+</body>
+</html>
